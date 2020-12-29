@@ -1,0 +1,22 @@
+{
+  "name": "back-end-final-project-powershell-rangers",
+  "version": "1.0.0",
+  "description": "| Method | Path             | Additional Info | Result                                         | Response                                  |\r | ------ | ---------------- | --------------- | ---------------------------------------------- | ----------------------------------------- |\r | GET    | /books           |                 | all books                                      | { success: Boolean, payload: Book Array } |\r | GET    | /books           | ?search=potter  | all books with “potter” in the title           | { success: Boolean, payload: Book Array } |\r | GET    | /books           | ?author=austen  | all books who have “austen” in the author name | { success: Boolean, payload: Book Array } |\r | GET    | /books/<book_id> |                 | books with a particular id if it exists        | { success: Boolean, payload: Book }       |\r | POST   | /books           | { body }        | create a new book                              | { success: Boolean, payload: Book }       |\r | PUT    | /books/<book_id> | { body }        | updated book                                   | { success: Boolean, payload: Book }       |\r | DELETE | /books/<book_id> |                 | book deleted                                   | { success: Boolean, payload: Book }       |\r | GET    | /authors             |                 | all authors                               | { success: Boolean, payload: Author Array } |\r | GET    | /authors             | ?search=austen  | all authors with “austen” in their name   | { success: Boolean, payload: Author Array } |\r | GET    | /authors/<author_id> |                 | authors with a particular id if it exists | { success: Boolean, payload: Author }       |\r | POST   | /authors             | { body }        | create a new author                       | { success: Boolean, payload: Author }       |\r | PUT    | /authors/<author_id> | { body }        | updated author                            | { success: Boolean, payload: Author }       |\r | DELETE | /authors/<author_id> |                 | author deleted                            | { success: Boolean, payload: Author }       |",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SchoolOfCode/back-end-final-project-powershell-rangers.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SchoolOfCode/back-end-final-project-powershell-rangers/issues"
+  },
+  "homepage": "https://github.com/SchoolOfCode/back-end-final-project-powershell-rangers#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
