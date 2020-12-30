@@ -1,90 +1,49 @@
-require("dotenv").config();
-
+//Express is for building the Rest apis
 const express = require("express");
+
+//body-parser helps to parse the request and create the req.body object
 const bodyParser = require("body-parser");
+
+//cors provides Express middleware to enable CORS with various options
+const cors = require("cors");
+
 const app = express();
-const MongoClient = require("mongodb").MongoClient;
 
-// Replace process.env.DB_URL with your actual connection string
-const connectionString = process.env.DATABASE_URL;
+var corsOptions = {
+  origin: "http://localhost:8081",
+};
 
-MongoClient.connect(connectionString, { useUnifiedTopology: true })
-  .then((client) => {
-    console.log("Connected to Database");
-    const db = client.db("users");
-    const quotesCollection = db.collection("quotes");
+app.use(cors(corsOptions));
 
-    // Middlewares
-    // Make sure you place body-parser before your CRUD handlers!
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(bodyParser.json());
-    app.use(express.static("public"));
+// parse requests of content-type - application/json
+app.use(bodyParser.json());
 
-    // Routes
-    // app.get("/", (req, res) => {
-    //   res.sendFile(__dirname + "/index.html");
-    // });
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 
-    // CRUD - READ
-    app.get("/", (req, res) => {
-      db.collection("quotes")
-        .find()
-        .toArray()
-        .then((results) => {
-          console.log(results);
-        })
-        .catch((error) => console.error(error));
-    });
-
-    // CRUD - CREATE
-    app.post("/quotes", (req, res) => {
-      quotesCollection
-        .insertOne(req.body)
-        .then((result) => {
-          res.redirect("/");
-        })
-        .catch((error) => console.error(error));
-    });
-
-    //CRUD - UPDATE
-    // app.put("/quotes", (req, res) => {
-    //   console.log(req.body);
-    // });
-
-    app.put("/quotes", (req, res) => {
-      quotesCollection
-        .findOneAndUpdate(
-          { name: "Yoda" },
-          {
-            $set: {
-              name: req.body.name,
-              quote: req.body.quote,
-            },
-          },
-          {
-            upsert: true,
-          }
-        )
-        .then((result) => res.json("Success"))
-        .catch((error) => console.error(error));
-    });
-
-    // CRUD - DELETE
-    app.delete("/quotes", (req, res) => {
-      quotesCollection
-        .deleteOne({ name: req.body.name })
-        .then((result) => {
-          if (result.deletedCount === 0) {
-            return res.json("No quote to delete");
-          }
-          res.json(`Deleted Darth Vadar's quote`);
-        })
-        .catch((error) => console.error(error));
-    });
-
-    //Listen to PORT
-    app.listen(5000, function () {
-      console.log("listening on 5000");
-    });
+const db = require("./models");
+db.mongoose
+  .connect(db.url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
-  .catch(console.error);
+  .then(() => {
+    console.log("Connected to the database!");
+  })
+  .catch((err) => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
+  });
+
+// simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to Your POW! application." });
+});
+
+require("./routes/tutorial.routes")(app);
+
+// set port, listen for requests
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
