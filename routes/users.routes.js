@@ -21,7 +21,7 @@ module.exports = (app) => {
   // Delete a Entry with id
   router.delete("/:id", users.delete);
 
-  // Create a new Entry
+  // Delete all Entries
   router.delete("/", users.deleteAll);
 
   app.use("/api/users", router);
