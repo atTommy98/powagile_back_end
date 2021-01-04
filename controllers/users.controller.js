@@ -10,13 +10,7 @@ exports.create = (req, res) => {
   }
 
   // Create a new entry
-  const users = new Users({
-    userName: req.body.userName,
-    AuthId: req.body.AuthId,
-    email: req.body.email,
-    user_metdata: req.body.user_metdata,
-    app_metadata: req.body.app_metadata,
-  });
+  const users = new Users(req.body);
 
   // Save newEntry in the database
   users

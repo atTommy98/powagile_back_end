@@ -10,13 +10,7 @@ exports.create = (req, res) => {
   }
 
   // Create a new entry
-  const meeting = new Meeting({
-    type: req.body.type,
-    cards: req.body.cards,
-    userName: req.body.userName,
-    hasHadTurn: req.body.hasHadTurn ? req.body.hasHadTurn : false,
-    totalMeetingTime: req.body.totalMeetingTime,
-  });
+  const meeting = new Meeting(req.body);
 
   // Save newEntry in the database
   meeting
