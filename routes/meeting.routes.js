@@ -24,5 +24,5 @@ module.exports = (app) => {
   // Create a new Entry
   router.delete("/", meeting.deleteAll);
 
-  app.use("/api/meeting", router);
+  app.use("/meeting", router);
 };
