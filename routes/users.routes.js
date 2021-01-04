@@ -10,7 +10,7 @@ module.exports = (app) => {
   router.get("/", users.findAll);
 
   // Retrieve all Entries which has had their turn
-  router.get("/hasHadTurn", users.findAllHASHadTurn);
+  // router.get("/hasHadTurn", users.findAllHASHadTurn);
 
   // Retrieve a single Entry with id
   router.get("/:id", users.findOne);

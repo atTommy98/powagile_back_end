@@ -7,10 +7,9 @@ module.exports = (mongoose) => {
       {
         userName: String,
         AuthId: String,
-        hasHadTurn: Boolean,
-        timeLeft: Number,
-        pauses: Number,
-        totalSpeekingTime: Number,
+        email: String,
+        user_metadata: String,
+        app_metadata: String,
       },
       { timestamps: true }
     )
