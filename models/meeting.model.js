@@ -5,7 +5,7 @@ module.exports = (mongoose) => {
     "meeting",
     mongoose.Schema(
       {
-        userDetails: String,
+        userId: String,
         type: String,
         meetingParticipants: Array,
         meetingStartTime: Date,
