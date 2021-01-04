@@ -8,8 +8,8 @@ module.exports = (mongoose) => {
         userName: String,
         AuthId: String,
         email: String,
-        user_metadata: String,
-        app_metadata: String,
+        user_metadata: {},
+        app_metadata: {},
       },
       { timestamps: true }
     )
