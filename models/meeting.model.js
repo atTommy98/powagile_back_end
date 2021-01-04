@@ -6,10 +6,9 @@ module.exports = (mongoose) => {
     mongoose.Schema(
       {
         type: String,
-        cards: Array,
-        userName: String,
-        hasHadTurn: Boolean,
-        totalMeetingTime: Date,
+        meetingParticipants: Array,
+        meetingStartTime: Date,
+        meetingEndTime: Date,
       },
       { timestamps: true }
     )
