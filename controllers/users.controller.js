@@ -1,6 +1,5 @@
 const db = require("../models");
 const Users = db.users;
-
 // CRUD _ Create and Save a new entry
 exports.create = (req, res) => {
   // Validate request
@@ -8,10 +7,8 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-
   // Create a new entry
   const users = new Users(req.body);
-
   // Save newEntry in the database
   users
     .save(users)
@@ -26,13 +23,11 @@ exports.create = (req, res) => {
 };
 // READ - Retrieve all entries from the database.
 // Retrieve all entries/ find by userName from the database:
-
 exports.findAll = (req, res) => {
   const userName = req.query.userName;
   var condition = userName
     ? { userName: { $regex: new RegExp(userName), $options: "i" } }
     : {};
-
   Users.find(condition)
     .then((data) => {
       res.send(data);
@@ -43,11 +38,9 @@ exports.findAll = (req, res) => {
       });
     });
 };
-
 // Find a single entry with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
-
   Users.findById(id)
     .then((data) => {
       if (!data)
@@ -58,7 +51,6 @@ exports.findOne = (req, res) => {
       res.status(500).send({ message: "Error retrieving entry with id=" + id });
     });
 };
-
 // Update an entry by the id in the request
 exports.update = (req, res) => {
   if (!req.body) {
@@ -66,7 +58,6 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!",
     });
   }
-
   const id = req.params.id;
 
   Users.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
@@ -83,7 +74,6 @@ exports.update = (req, res) => {
       });
     });
 };
-
 // Delete an entry with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
@@ -106,7 +96,6 @@ exports.delete = (req, res) => {
       });
     });
 };
-
 // Delete all entries from the database.
 exports.deleteAll = (req, res) => {
   Users.deleteMany({})
@@ -124,7 +113,6 @@ exports.deleteAll = (req, res) => {
 };
 
 // Find all published User with hasHadTurn = true:
-
 exports.findAllHASHadTurn = (req, res) => {
   Users.find({ hasHadTurn: true })
     .then((data) => {
