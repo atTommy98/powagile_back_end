@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "cypress:open": "cypress open"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "mongoose": "^5.11.9"
   },
   "devDependencies": {
+    "cypress": "^6.2.1",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.6"
   }

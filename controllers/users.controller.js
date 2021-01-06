@@ -1,6 +1,5 @@
 const db = require("../models");
 const Users = db.users;
-
 // CRUD _ Create and Save a new entry
 exports.create = (req, res) => {
   // Validate request
@@ -8,10 +7,8 @@ exports.create = (req, res) => {
     res.status(400).send({ message: "Content can not be empty!" });
     return;
   }
-
   // Create a new entry
   const users = new Users(req.body);
-
   // Save newEntry in the database
   users
     .save(users)
@@ -26,13 +23,11 @@ exports.create = (req, res) => {
 };
 // READ - Retrieve all entries from the database.
 // Retrieve all entries/ find by userName from the database:
-
 exports.findAll = (req, res) => {
   const userName = req.query.userName;
   var condition = userName
     ? { userName: { $regex: new RegExp(userName), $options: "i" } }
     : {};
-
   Users.find(condition)
     .then((data) => {
       res.send(data);
@@ -43,11 +38,9 @@ exports.findAll = (req, res) => {
       });
     });
 };
-
 // Find a single entry with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
-
   Users.findById(id)
     .then((data) => {
       if (!data)
@@ -58,7 +51,6 @@ exports.findOne = (req, res) => {
       res.status(500).send({ message: "Error retrieving entry with id=" + id });
     });
 };
-
 // Update an entry by the id in the request
 exports.update = (req, res) => {
   if (!req.body) {
@@ -66,50 +58,45 @@ exports.update = (req, res) => {
       message: "Data to update can not be empty!",
     });
   }
-
   const id = req.params.id;
-
-  Meeting.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+  Users.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     .then((data) => {
       if (!data) {
         res.status(404).send({
-          message: `Cannot update Meeting with id=${id}. Maybe Meeting was not found!`,
+          message: `Cannot update User with id=${id}. Maybe User was not found!`,
         });
-      } else res.send({ message: "Meeting was updated successfully." });
+      } else res.send({ message: "User was updated successfully." });
     })
     .catch((err) => {
       res.status(500).send({
-        message: "Error updating Meeting with id=" + id,
+        message: "Error updating User with id=" + id,
       });
     });
 };
-
 // Delete an entry with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
-
-  Meeting.findByIdAndRemove(id, { useFindAndModify: false })
+  Users.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
       if (!data) {
         res.status(404).send({
-          message: `Cannot delete meeting with id=${id}. Maybe meeting was not found!`,
+          message: `Cannot delete User with id=${id}. Maybe User was not found!`,
         });
       } else {
         res.send({
-          message: "Meeting was deleted successfully!",
+          message: "User was deleted successfully!",
         });
       }
     })
     .catch((err) => {
       res.status(500).send({
-        message: "Could not delete Meeting with id=" + id,
+        message: "Could not delete User with id=" + id,
       });
     });
 };
-
 // Delete all entries from the database.
 exports.deleteAll = (req, res) => {
-  Meeting.deleteMany({})
+  Users.deleteMany({})
     .then((data) => {
       res.send({
         message: `${data.deletedCount} Entries were deleted successfully!`,
@@ -122,11 +109,9 @@ exports.deleteAll = (req, res) => {
       });
     });
 };
-
-// Find all published Tutorials with published = true:
-
+// Find all published User with hasHadTurn = true:
 exports.findAllHASHadTurn = (req, res) => {
-  Meeting.find({ hasHadTurn: true })
+  Users.find({ hasHadTurn: true })
     .then((data) => {
       res.send(data);
     })
