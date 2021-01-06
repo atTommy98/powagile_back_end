@@ -1,6 +1,9 @@
 {
   "name": "back-end-final-project-powershell-rangers",
   "version": "1.0.0",
+  "engines": {
+    "node": "12.x"
+  },
   "description": "PowAgile Back End",
   "main": "index.js",
   "scripts": {
