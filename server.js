@@ -59,11 +59,17 @@ var io = require("socket.io")(server, {
     methods: ["GET", "POST"],
   },
 });
-io.on("connection", () => {
+
+io.on("connection", (socket) => {
+  // socket.join("room1");
+  // console.log(socket.handshake.query.roomID);
+  socket.join(socket.handshake.query.roomID);
+  console.log(socket.rooms);
   console.log("a user is connected");
 });
 
 app.post("/sockets", (req, res) => {
   io.emit("message", req.body);
+  console.log(req.body);
   res.sendStatus(200);
 });
