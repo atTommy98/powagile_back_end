@@ -8,5 +8,6 @@ db.mongoose = mongoose;
 db.url = dbConfig.url;
 db.users = require("./users.model")(mongoose);
 db.meeting = require("./meeting.model")(mongoose);
+db.sockets = require("./sockets.model")(mongoose);
 
 module.exports = db;

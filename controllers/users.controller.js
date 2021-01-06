@@ -59,6 +59,7 @@ exports.update = (req, res) => {
     });
   }
   const id = req.params.id;
+
   Users.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     .then((data) => {
       if (!data) {
@@ -76,6 +77,7 @@ exports.update = (req, res) => {
 // Delete an entry with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
+
   Users.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
       if (!data) {
@@ -109,6 +111,7 @@ exports.deleteAll = (req, res) => {
       });
     });
 };
+
 // Find all published User with hasHadTurn = true:
 exports.findAllHASHadTurn = (req, res) => {
   Users.find({ hasHadTurn: true })

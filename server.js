@@ -1,12 +1,13 @@
-//Express is for building the Rest apis
+// //Express is for building the Rest apis
 const express = require("express");
 
-//body-parser helps to parse the request and create the req.body object
+// //body-parser helps to parse the request and create the req.body object
 const bodyParser = require("body-parser");
 
 //cors provides Express middleware to enable CORS with various options
 const cors = require("cors");
 
+// initialise app
 const app = express();
 
 // var corsOptions = {
@@ -43,10 +44,26 @@ app.get("/", (req, res) => {
 
 require("./routes/meeting.routes")(app);
 require("./routes/users.routes")(app);
-// require("./routes/teams.routes")(app);
+// require("./routes/sockets.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
+});
+
+// socket io
+var io = require("socket.io")(server, {
+  cors: {
+    origin: "http://127.0.0.1:5500",
+    methods: ["GET", "POST"],
+  },
+});
+io.on("connection", () => {
+  console.log("a user is connected");
+});
+
+app.post("/sockets", (req, res) => {
+  io.emit("message", req.body);
+  res.sendStatus(200);
 });
