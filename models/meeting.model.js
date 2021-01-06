@@ -8,8 +8,8 @@ module.exports = (mongoose) => {
         userId: String,
         type: String,
         meetingParticipants: Array,
-        meetingStartTime: Date,
-        meetingEndTime: Date,
+        meetingStartTime: Number,
+        meetingEndTime: Number,
       },
       { timestamps: true }
     )

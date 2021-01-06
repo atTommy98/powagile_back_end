@@ -43,7 +43,12 @@
       <div id="messages"></div>
     </div>
     <script>
-      var socket = io.connect("localhost:8080/");
+      var socket = io.connect("localhost:8080/", {
+        query: {
+          roomID: "smokeweed",
+        },
+      });
+
       $(() => {
         $("#send").click(() => {
           sendMessage({ name: $("#name").val(), message: $("#message").val() });
