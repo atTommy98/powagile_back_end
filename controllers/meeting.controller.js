@@ -137,3 +137,53 @@ exports.findAllHASHadTurn = (req, res) => {
       });
     });
 };
+
+exports.getMeetingByDate = async (req, res) => {
+  try {
+    //get dates from req.query by es6 object destructuring
+
+    let { startDate, endDate } = req.query;
+
+    //1. check that date is not empty
+    if (startDate === "" || endDate === "") {
+      return res.status(400).json({
+        status: "failure",
+        message: "Please ensure you pick two dates",
+      });
+    }
+
+    //2. check that date is in the right format
+    //expected result: YYY-MMM-DDD
+    console.log({ startDate, endDate });
+
+    //In some cases you'll get a date-time format where you have to separate the date
+    //from the time.
+
+    //3. Query database using Mongoose
+    //Mind the curly braces
+    const meetings = Meeting.find({
+      meetingStartTime: {
+        $gte: new Date(new Date(startDate).setHours(00, 00, 00)),
+        $lt: new Date(new Date(endDate).setHours(23, 59, 59)),
+      },
+    }).sort({ meetingStartTime: "asc" });
+
+    //4. Handle responses
+    if (!meetings) {
+      return res.status(404).json({
+        status: "failure",
+        message: "Could not retrieve transactions",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: meetings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "failure",
+      error: error.message,
+    });
+  }
+};
