@@ -42,9 +42,9 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Your POW! application." });
 });
 
+require("./routes/meeting_time.routes")(app);
 require("./routes/meeting.routes")(app);
 require("./routes/users.routes")(app);
-// require("./routes/sockets.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;

@@ -7,24 +7,23 @@ module.exports = (app) => {
   router.post("/", meeting.create);
 
   // Retrieve all Entries
-  router.get("/", meeting.findAll);
-
-  // Retrieve all Entries which has had their turn
-  router.get("/hasHadTurn", meeting.findAllHASHadTurn);
-
-  // Retrieve a single Entry with id
-  router.get("/:id", meeting.findOne);
-
-  // Update a Entry with id
-  router.put("/:id", meeting.update);
-
-  // Delete a Entry with id
-  router.delete("/:id", meeting.delete);
+  router.get("/getAll", meeting.findAll);
 
   // Create a new Entry
   router.delete("/", meeting.deleteAll);
 
-  router.get("/meetingStartTime", meeting.getMeetingByDate);
+  // Retreive meetings by date
+  // :meetingStartTime&:meetingEndTime"
+  router.get("/getByDate", meeting.getMeetingByDate);
+
+  // Retrieve a single Entry with id
+  router.get("/id", meeting.findOne);
+
+  // Update a Entry with id
+  router.put("/id", meeting.update);
+
+  // Delete a Entry with id
+  router.delete("/id", meeting.delete);
 
   app.use("/meeting", router);
 };
