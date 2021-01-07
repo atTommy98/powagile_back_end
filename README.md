@@ -19,7 +19,7 @@
 | Method | Path                | Additional Info            | Result                             | Response |
 | ------ | ------------------- | -------------------------- | ---------------------------------- | -------- |
 | POST   | /meetings/          | req.body                   | add meeting to db                  |          |
-| GET    | /meetings/getall    | -                          | get all meetings                   |          |
+| GET    | /meetings/getAll    | -                          | get all meetings                   |          |
 | GET    | /meetings/getByDate | req.query.meetingStartTime | get all meetings on a certain date |          |
 | GET    | /meetings/id        | req.query.id               | get meeting by id                  |          |
 | PUT    | /meetings/id        | req.query.id               | update meeting by id               |          |
