@@ -1,6 +1,8 @@
 const db = require("../models");
 const Sockets = db.sockets;
 
+// TODO: Post full Retro object to database once Retrospective is finished...
+
 // CRUD _ Create and Save a new entry
 exports.create = (req, res) => {
   // Validate request
