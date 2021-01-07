@@ -24,5 +24,7 @@ module.exports = (app) => {
   // Create a new Entry
   router.delete("/", meeting.deleteAll);
 
+  router.get("/meetingStartTime", meeting.getMeetingByDate);
+
   app.use("/meeting", router);
 };
