@@ -1,6 +1,6 @@
 # PowerShell Rangers - Back End
 
-## API Plan
+---
 
 ### Users Table
 
@@ -12,6 +12,8 @@
 | PUT    | /users/:id | :id             | update user by id |          |
 | DELETE | /users/:id | :id             | delete user by id |          |
 
+---
+
 ### Meetings Table
 
 | Method | Path                | Additional Info            | Result                             | Response |
@@ -22,6 +24,8 @@
 | GET    | /meetings/id        | req.query.id               | get meeting by id                  |          |
 | PUT    | /meetings/id        | req.query.id               | update meeting by id               |          |
 | DELETE | /meetings/id        | req.query.id               | delete meeting by id               |          |
+
+---
 
 ### Websockets
 
