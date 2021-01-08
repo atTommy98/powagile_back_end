@@ -54,21 +54,43 @@ const server = app.listen(PORT, () => {
 // socket io
 var io = require("socket.io")(server, {
   cors: {
-    origin: "http://127.0.0.1:5500",
+    origin: [
+      "http://127.0.0.1:5500",
+      "http://localhost:3000",
+      "https://powagile.netlify.app",
+    ],
     methods: ["GET", "POST"],
   },
 });
 
 io.on("connection", (socket) => {
-  // socket.join("room1");
-  // console.log(socket.handshake.query.roomID);
+  socket.nickname = socket.handshake.query.username;
   socket.join(socket.handshake.query.roomID);
-  console.log(socket.rooms);
-  console.log("a user is connected");
+
+  console.log(`There is an active socket called ${socket.nickname}`);
+
+  socket.on("participants", (data) => {
+    socket.broadcast.emit(data);
+    console.log(`HIT - Participants`);
+    console.log(data.participants);
+  });
 });
 
-app.post("/sockets", (req, res) => {
-  io.emit("message", req.body);
-  console.log(req.body);
-  res.sendStatus(200);
-});
+// FIXME: POST REQUEST
+// app.post("/sockets", (req, res) => {
+//   // Update participants
+//   if (req.body.participants) {
+//     io.emit("participants", req.body.participants);
+//     console.log(`HIT - Participants`);
+//     console.log(req.body.participants);
+//     res.sendStatus(200);
+//   }
+
+//   // Update meeting
+//   if (req.body.meeting) {
+//     io.emit("meeting", req.body.meeting);
+//     console.log(`HIT - Meeting`);
+//     console.log(req.body.meeting);
+//     res.sendStatus(200);
+//   }
+// });
