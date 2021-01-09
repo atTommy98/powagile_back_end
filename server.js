@@ -30,10 +30,10 @@ db.mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Connected to the database!");
+    console.log("\x1b[32m", "Mongo DB - Connection Successful!", "\x1b[0m");
   })
   .catch((err) => {
-    console.log("Cannot connect to the database!", err);
+    console.log("\x1b[31m", "Mongo DB - Error connecting:", err, "\x1b[0m");
     process.exit();
   });
 
@@ -48,7 +48,8 @@ require("./routes/users.routes")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+  console.log("---Starting up...---");
+  console.log("\x1b[32m", `Server is running on port ${PORT}`, "\x1b[0m");
 });
 
 // socket io
@@ -63,20 +64,39 @@ var io = require("socket.io")(server, {
   },
 });
 
+var connectedParticipants = {};
+var currentMeeting = {};
+
+function checkMeeting() {}
+function updateMeeting() {}
+
 io.on("connection", (socket) => {
+  // Give the socket a nickname, add the participant
   socket.nickname = socket.handshake.query.username;
   socket.join(socket.handshake.query.roomID);
+  connectedParticipants.roomID.push(socket.nickname);
+  console.log(connectedParticipants);
 
-  console.log(`There is an active socket called ${socket.nickname}`);
+  // socket.on("participants", (data) => {
+  //   socket.broadcast.emit(data);
+  //   console.log(`HIT - Participants`);
+  //   console.log(data.participants);
+  // });
 
-  socket.on("participants", (data) => {
-    socket.broadcast.emit(data);
+  socket.on("card", (card) => {
+    socket.broadcast.emit(card);
     console.log(`HIT - Participants`);
-    console.log(data.participants);
+    console.log(card.participants);
+  });
+
+  // handle disconnects
+  socket.on("disconnect", function () {
+    socket.broadcast.emit("disconnected");
+    online = online - 1;
   });
 });
 
-// FIXME: POST REQUEST
+// FIXME: POST REQUEST FOR MONGO DB
 // app.post("/sockets", (req, res) => {
 //   // Update participants
 //   if (req.body.participants) {
