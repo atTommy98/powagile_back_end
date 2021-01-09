@@ -40,7 +40,7 @@ exports.findAll = (req, res) => {
 };
 // Find a single entry with an id
 exports.findOne = (req, res) => {
-  const id = req.params.id;
+  const id = req.query.id;
   Users.findById(id)
     .then((data) => {
       if (!data)
@@ -53,12 +53,12 @@ exports.findOne = (req, res) => {
 };
 // Update an entry by the id in the request
 exports.update = (req, res) => {
-  if (!req.body) {
+  if (!req.query) {
     return res.status(400).send({
       message: "Data to update can not be empty!",
     });
   }
-  const id = req.params.id;
+  const id = req.query.id;
 
   Users.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     .then((data) => {
@@ -76,7 +76,7 @@ exports.update = (req, res) => {
 };
 // Delete an entry with the specified id in the request
 exports.delete = (req, res) => {
-  const id = req.params.id;
+  const id = req.query.id;
 
   Users.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
