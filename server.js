@@ -97,7 +97,7 @@ io.on("connection", (socket) => {
     avatar = "null",
   } = socket.handshake.query;
 
-  // Give the socket a nickname (the name of the user)
+  // Give the the name of the user
   socket.name = name;
   socket.join(roomId);
 

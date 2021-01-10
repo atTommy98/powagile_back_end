@@ -9,11 +9,7 @@ module.exports = (app) => {
   // Retrieve all Entries
   router.get("/getAll", meeting.findAll);
 
-  // Delete all entries
-  // router.delete("/", meeting.deleteAll);
-
   // Retreive meetings by date
-  // :meetingStartTime&:meetingEndTime"
   router.get("/getByDate", meeting.getMeetingByDate);
 
   // Retrieve a single Entry with id
