@@ -64,39 +64,9 @@ var io = require("socket.io")(server, {
   },
 });
 
-var connectedParticipants = {};
-var currentMeeting = {};
-
+// MongoDB shit goes here
 function checkMeeting() {}
 function updateMeeting() {}
-
-io.on("connection", (socket) => {
-  // Give the socket a nickname, add the participant
-  socket.nickname = socket.handshake.query.username;
-  socket.join(socket.handshake.query.roomID);
-  connectedParticipants.roomID.push(socket.nickname);
-  console.log(connectedParticipants);
-
-  // socket.on("participants", (data) => {
-  //   socket.broadcast.emit(data);
-  //   console.log(`HIT - Participants`);
-  //   console.log(data.participants);
-  // });
-
-  socket.on("card", (card) => {
-    socket.broadcast.emit(card);
-    console.log(`HIT - Participants`);
-    console.log(card.participants);
-  });
-
-  // handle disconnects
-  socket.on("disconnect", function () {
-    socket.broadcast.emit("disconnected");
-    online = online - 1;
-  });
-});
-
-// FIXME: POST REQUEST FOR MONGO DB
 // app.post("/sockets", (req, res) => {
 //   // Update participants
 //   if (req.body.participants) {
@@ -114,3 +84,42 @@ io.on("connection", (socket) => {
 //     res.sendStatus(200);
 //   }
 // });
+
+// store a list of the active participants
+var connectedParticipants = {};
+var currentMeeting = {};
+
+io.on("connection", (socket) => {
+  const { nickname = "Anonymous", roomID } = socket.handshake.query;
+
+  // Give the socket a nickname (the name of the user)
+  socket.nickname = nickname;
+  socket.join(roomID);
+
+  // Check if they are part of the list
+  console.log(socket.id);
+  console.log(socket.nickname);
+
+  // Does the participants list exist for this meeting?
+  () => {
+    if (!connectedParticipants[roomID]) {
+      connectedParticipants[roomID] = [];
+    }
+    connectedParticipants[roomID].push([socket.id, socket.nickname]);
+  };
+
+  socket.on("card", (card) => {
+    socket.broadcast.emit(card);
+    console.log(card);
+  });
+
+  socket.on("endMeeting", (req) => {
+    // do stuff
+  });
+
+  // handle disconnects
+  socket.on("disconnect", (req) => {
+    socket.broadcast.emit("disconnected");
+    // do stuff
+  });
+});
