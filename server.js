@@ -123,28 +123,28 @@ io.on("connection", (socket) => {
   });
 
   socket.on("deleteCard", (id) => {
-    socket.broadcast.emit(card);
-    console.log(id);
+    socket.broadcast.emit("deleteCard", id);
+    console.log("Delete card");
   });
 
   socket.on("updateCardText", (card) => {
-    socket.broadcast.emit(card);
-    console.log(card);
+    socket.broadcast.emit("updateCardText", card);
+    console.log("Update card");
   });
 
   socket.on("updateCardVotes", (card) => {
     socket.broadcast.emit(card);
-    console.log(card);
+    console.log("Update card votes");
   });
 
   socket.on("moveCard", (card) => {
     socket.broadcast.emit(card);
-    console.log(card);
+    console.log("Move card");
   });
 
   socket.on("endMeeting", (req) => {
     delete activeParticipants.roomId;
-    console.log(`Deleting meeting ${roomId}`);
+    console.log(`Ending meeting ${roomId}...`);
   });
 
   // handle disconnects
