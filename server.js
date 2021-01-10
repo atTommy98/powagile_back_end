@@ -117,14 +117,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on("addCard", (card) => {
-    socket.broadcast.emit(card);
+    socket.broadcast.emit("addCard", card);
     // more logic to store / amend meeting object here
-    console.log(card);
+    console.log("Add card");
   });
 
-  socket.on("deleteCard", (card) => {
+  socket.on("deleteCard", (id) => {
     socket.broadcast.emit(card);
-    console.log(card);
+    console.log(id);
   });
 
   socket.on("updateCardText", (card) => {
