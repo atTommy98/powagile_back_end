@@ -85,41 +85,74 @@ function updateMeeting() {}
 //   }
 // });
 
-// store a list of the active participants
-var connectedParticipants = {};
-var currentMeeting = {};
+// store a list of the active meetings and participants
+var activeMeetings = {};
+var activeParticipants = {};
 
 io.on("connection", (socket) => {
-  const { nickname = "Anonymous", roomID } = socket.handshake.query;
+  const {
+    roomId,
+    name = "Anonymous",
+    isFacilitator = false,
+    avatar = "null",
+  } = socket.handshake.query;
 
   // Give the socket a nickname (the name of the user)
-  socket.nickname = nickname;
-  socket.join(roomID);
+  socket.name = name;
+  socket.join(roomId);
 
-  // Check if they are part of the list
-  console.log(socket.id);
-  console.log(socket.nickname);
+  // Say they've connected
+  socket.broadcast.emit("connection_notification", `${name} has connected!`);
 
   // Does the participants list exist for this meeting?
-  () => {
-    if (!connectedParticipants[roomID]) {
-      connectedParticipants[roomID] = [];
-    }
-    connectedParticipants[roomID].push([socket.id, socket.nickname]);
-  };
 
-  socket.on("card", (card) => {
+  if (!activeParticipants[roomId]) {
+    activeParticipants[roomId] = [];
+  }
+  activeParticipants[roomId].push([socket.id, socket.name]);
+  console.log(activeParticipants[roomId]);
+
+  socket.on("startMeeting", (req) => {
+    // Started tracking meeting id "idhere"
+  });
+
+  socket.on("addCard", (card) => {
+    socket.broadcast.emit(card);
+    // more logic to store / amend meeting object here
+    console.log(card);
+  });
+
+  socket.on("deleteCard", (card) => {
+    socket.broadcast.emit(card);
+    console.log(card);
+  });
+
+  socket.on("updateCardText", (card) => {
+    socket.broadcast.emit(card);
+    console.log(card);
+  });
+
+  socket.on("updateCardVotes", (card) => {
+    socket.broadcast.emit(card);
+    console.log(card);
+  });
+
+  socket.on("moveCard", (card) => {
     socket.broadcast.emit(card);
     console.log(card);
   });
 
   socket.on("endMeeting", (req) => {
-    // do stuff
+    delete activeParticipants.roomId;
+    console.log(`Deleting meeting ${roomId}`);
   });
 
   // handle disconnects
-  socket.on("disconnect", (req) => {
-    socket.broadcast.emit("disconnected");
-    // do stuff
-  });
+  // socket.on("disconnect", (req) => {
+  //   socket.broadcast.emit(
+  //     "connection_notification",
+  //     `${name} has disconnected`
+  //   );
+  //   // find index by socket id
+  // });
 });
