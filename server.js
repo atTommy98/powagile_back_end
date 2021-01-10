@@ -102,15 +102,10 @@ io.on("connection", (socket) => {
   socket.join(roomId);
 
   // Say they've connected
-  socket.broadcast.emit("connection_notification", `${name} has connected!`);
-
-  // Does the participants list exist for this meeting?
-
-  if (!activeParticipants[roomId]) {
-    activeParticipants[roomId] = [];
-  }
-  activeParticipants[roomId].push([socket.id, socket.name]);
-  console.log(activeParticipants[roomId]);
+  socket.broadcast.emit("notification", {
+    type: "user_connected",
+    content: `${name} has connected!`,
+  });
 
   socket.on("startMeeting", (req) => {
     // Started tracking meeting id "idhere"
@@ -134,7 +129,11 @@ io.on("connection", (socket) => {
 
   socket.on("updateCardVotes", (card) => {
     socket.broadcast.emit(card);
-    console.log("Update card votes");
+    console.log(
+      card.thumb === "thumbsUp"
+        ? "Update card votes - thumbs up"
+        : "Update card votes - thumbs down"
+    );
   });
 
   socket.on("moveCard", (card) => {
@@ -147,6 +146,15 @@ io.on("connection", (socket) => {
     console.log(`Ending meeting ${roomId}...`);
   });
 
+  // Does the participants list exist for this meeting?
+
+  if (!activeParticipants[roomId]) {
+    activeParticipants[roomId] = [];
+  }
+  activeParticipants[roomId].push([socket.id, socket.name]);
+  console.log(activeParticipants[roomId]);
+
+  // TODO:
   // handle disconnects
   // socket.on("disconnect", (req) => {
   //   socket.broadcast.emit(
