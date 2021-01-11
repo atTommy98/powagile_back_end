@@ -85,9 +85,11 @@ function updateMeeting() {}
 //   }
 // });
 
-// store a list of the active meetings and participants
+// 💾 Store a list of the active meetings and participants
 var activeMeetings = {};
 var activeParticipants = {};
+//// This is hopefully where I'll put my replay feature:
+//// var activeMeetingStates = {};
 
 io.on("connection", (socket) => {
   const {
@@ -99,23 +101,57 @@ io.on("connection", (socket) => {
 
   // Give the the name of the user
   socket.name = name;
+  // Join the relevant session
   socket.join(roomId);
 
-  // Facilitator? Take meeting info and store
-  // Participant? Get meeting info
-
   // Say they've connected
+  console.log(`${name} has connected! (${socket.id})`);
   socket.broadcast.emit("notification", {
     type: "user_connected",
-    content: `${name} has connected!`,
+    content: `${name} has connected! (${socket.id})`,
   });
 
-  console.log(`${name} has connected!`);
+  console.log(`${name} is a facilitator: ${isFacilitator}`);
 
-  socket.on("startMeeting", (req) => {
-    // console.log() Started tracking meeting id "idhere"
+  ////// 👨‍👨‍👦‍👦 PARTICIPANTS LOGIC 👨‍👨‍👦‍👦
+  // Does the participants list exist for this meeting?
+  // No?
+  if (!(roomId in activeParticipants)) {
+    // Create it...
+    activeParticipants[roomId] = [];
+    // ...and add the participant
+    const newParticipant = [socket.id, socket.name];
+    activeParticipants[roomId].push(newParticipant);
+  }
+  // Yes?
+  if (roomId in activeParticipants) {
+    // Only add the participant
+    const newParticipant = [socket.id, socket.name];
+    activeParticipants[roomId].push(newParticipant);
+  }
+
+  ////// 📊 MEETING LOGIC 📊
+  // Facilitator & new meeting? Take the meeting info and store it
+  if (isFacilitator === true && !(roomId in activeMeetings)) {
+    activeMeetings.roomId = {};
+    console.log(`Blank state added - meeting id ${roomId}`);
+  }
+  // Store first meeting state
+  socket.on("startMeeting", (meeeting) => {
+    delete meeeting.icon;
+    activeMeetings[roomId] = { ...meeeting };
+    console.log(`Initial state added - meeting id ${roomId}`);
+    console.log(activeMeetings[roomId]);
   });
+  // Participant? Give them the meeting info
+  if (isFacilitator === false) {
+    console.log(`AAAAAAAAAAAAAAAAAAAAAAAAA INIT FOR ${name}`);
+    socket.emit("initialise_meeting", {
+      meeting: { ...activeMeetings.roomId },
+    });
+  }
 
+  ////// 📒 NOTES LOGIC
   socket.on("addCard", (card) => {
     socket.broadcast.emit("addCard", card);
     // TODO: Store in object
@@ -155,20 +191,12 @@ io.on("connection", (socket) => {
     console.log(`Ending meeting ${roomId}...`);
   });
 
-  // Does the participants list exist for this meeting?
-
-  if (!activeParticipants[roomId]) {
-    activeParticipants[roomId] = [];
-  }
-  activeParticipants[roomId].push([socket.id, socket.name]);
-  console.log(activeParticipants[roomId]);
-
   socket.on("disconnect", (req) => {
-    socket.broadcast.emit(
-      "connection_notification",
-      `${name} has disconnected`
-    );
+    console.log(`${name} has disconnected! (${socket.id})`);
+    socket.broadcast.emit("notification", {
+      type: "user_disconnected",
+      content: `${name} has disconnected!`,
+    });
     // remove from list of active participants
-    socket;
   });
 });
