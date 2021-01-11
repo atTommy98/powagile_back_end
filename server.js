@@ -107,6 +107,8 @@ io.on("connection", (socket) => {
     content: `${name} has connected!`,
   });
 
+  console.log(`${name} has connected!`);
+
   socket.on("startMeeting", (req) => {
     // Started tracking meeting id "idhere"
   });
@@ -154,13 +156,12 @@ io.on("connection", (socket) => {
   activeParticipants[roomId].push([socket.id, socket.name]);
   console.log(activeParticipants[roomId]);
 
-  // TODO:
-  // handle disconnects
-  // socket.on("disconnect", (req) => {
-  //   socket.broadcast.emit(
-  //     "connection_notification",
-  //     `${name} has disconnected`
-  //   );
-  //   // find index by socket id
-  // });
+  socket.on("disconnect", (req) => {
+    socket.broadcast.emit(
+      "connection_notification",
+      `${name} has disconnected`
+    );
+    // remove from list of active participants
+    socket;
+  });
 });
