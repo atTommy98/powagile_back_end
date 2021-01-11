@@ -101,6 +101,9 @@ io.on("connection", (socket) => {
   socket.name = name;
   socket.join(roomId);
 
+  // Facilitator? Take meeting info and store
+  // Participant? Get meeting info
+
   // Say they've connected
   socket.broadcast.emit("notification", {
     type: "user_connected",
@@ -110,27 +113,30 @@ io.on("connection", (socket) => {
   console.log(`${name} has connected!`);
 
   socket.on("startMeeting", (req) => {
-    // Started tracking meeting id "idhere"
+    // console.log() Started tracking meeting id "idhere"
   });
 
   socket.on("addCard", (card) => {
     socket.broadcast.emit("addCard", card);
-    // more logic to store / amend meeting object here
+    // TODO: Store in object
     console.log("Add card");
   });
 
   socket.on("deleteCard", (id) => {
     socket.broadcast.emit("deleteCard", id);
+    // TODO: Store in object
     console.log("Delete card");
   });
 
   socket.on("updateCardText", (card) => {
     socket.broadcast.emit("updateCardText", card);
+    // TODO: Store in object
     console.log("Update card");
   });
 
   socket.on("updateCardVotes", (card) => {
-    socket.broadcast.emit(card);
+    socket.broadcast.emit("updateCardVotes", card);
+    // TODO: Store in object
     console.log(
       card.thumb === "thumbsUp"
         ? "Update card votes - thumbs up"
@@ -139,7 +145,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("moveCard", (card) => {
-    socket.broadcast.emit(card);
+    socket.broadcast.emit("moveCard", card);
+    // TODO: Store in object
     console.log("Move card");
   });
 
