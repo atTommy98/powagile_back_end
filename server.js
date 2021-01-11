@@ -92,12 +92,11 @@ var activeParticipants = {};
 //// var activeMeetingStates = {};
 
 io.on("connection", (socket) => {
-  const {
-    roomId,
-    name = "Anonymous",
-    isFacilitator = false,
-    avatar = "null",
-  } = socket.handshake.query;
+  let { roomId, name, isFacilitator, avatar } = socket.handshake.query;
+  // Fix stupid string shit 🙃
+  if (isFacilitator == "false") {
+    isFacilitator = false;
+  }
 
   // Give the the name of the user
   socket.name = name;
@@ -111,45 +110,38 @@ io.on("connection", (socket) => {
     content: `${name} has connected! (${socket.id})`,
   });
 
-  console.log(`${name} is a facilitator: ${isFacilitator}`);
-
-  ////// 📊 MEETING LOGIC 📊
-  // Facilitator & new meeting? Take the meeting info and store it
-  // FIXME: I never get to this part of the code???
-  if (isFacilitator && !(roomId in activeMeetings)) {
-    activeMeetings.roomId = {};
-    console.log(`Blank state added - meeting id ${roomId}`);
-  }
-  // Store first meeting state
+  // On startMeeting - store participant, store/emit meeting state
   socket.on("startMeeting", (meeeting) => {
-    delete meeeting.icon;
-
-    ////// 👨‍👨‍👦‍👦 PARTICIPANTS LOGIC 👨‍👨‍👦‍👦
-    // Does the participants list exist for this meeting?
-    // No?
-    if (!(roomId in activeParticipants)) {
+    // Participant Logic:
+    // Create participant list (if it doesn't exist) and add participant
+    if (isFacilitator && !(roomId in activeParticipants)) {
       activeParticipants[roomId] = [];
-      const newParticipant = [socket.id, socket.name];
-      activeParticipants[roomId].push(newParticipant);
+      activeParticipants[roomId].push([socket.id, name]);
     }
-    // Yes?
+    // Add to participant list
     if (roomId in activeParticipants) {
-      const newParticipant = [socket.id, socket.name];
-      activeParticipants[roomId].push(newParticipant);
+      activeParticipants[roomId].push([socket.id, name]);
+    }
+    // Give participant the meeting info
+    // console.log("I want false here, then true");
+    // console.log(typeof isFacilitator);
+    // console.log(!isFacilitator);
+    if (!isFacilitator) {
+      console.log(`${name} fetched meeting info`);
+      const meeting = activeMeetings[roomId];
+      socket.emit("initialise_meeting", meeting);
     }
 
-    activeMeetings[roomId] = { ...meeeting };
-    console.log(`Initial state added - meeting id ${roomId}`);
-    console.log(activeMeetings[roomId]);
+    // Meeting Logic:
+    // Get rid of unused keys
+    delete meeeting.icon;
+    // Facilitator & new meeting? Take the meeting info and store it
+    if (isFacilitator && !(roomId in activeMeetings)) {
+      activeMeetings[roomId] = { ...meeeting };
+      console.log(activeMeetings);
+      console.log(activeMeetings[roomId]);
+    }
   });
-  // FIXME: I never get to this part of the code???
-  // Participant? Give them the meeting info
-  if (isFacilitator == false) {
-    console.log(`AAAAAAAAAAAAAAAAAAAAAAAAA ${name} gets a meeting!`);
-    socket.emit("initialise_meeting", {
-      meeting: { ...activeMeetings.roomId },
-    });
-  }
 
   ////// 📒 NOTES LOGIC
   socket.on("addCard", (card) => {
