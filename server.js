@@ -113,39 +113,39 @@ io.on("connection", (socket) => {
 
   console.log(`${name} is a facilitator: ${isFacilitator}`);
 
-  ////// 👨‍👨‍👦‍👦 PARTICIPANTS LOGIC 👨‍👨‍👦‍👦
-  // Does the participants list exist for this meeting?
-  // No?
-  if (!(roomId in activeParticipants)) {
-    // Create it...
-    activeParticipants[roomId] = [];
-    // ...and add the participant
-    const newParticipant = [socket.id, socket.name];
-    activeParticipants[roomId].push(newParticipant);
-  }
-  // Yes?
-  if (roomId in activeParticipants) {
-    // Only add the participant
-    const newParticipant = [socket.id, socket.name];
-    activeParticipants[roomId].push(newParticipant);
-  }
-
   ////// 📊 MEETING LOGIC 📊
   // Facilitator & new meeting? Take the meeting info and store it
-  if (isFacilitator === true && !(roomId in activeMeetings)) {
+  // FIXME: I never get to this part of the code???
+  if (isFacilitator && !(roomId in activeMeetings)) {
     activeMeetings.roomId = {};
     console.log(`Blank state added - meeting id ${roomId}`);
   }
   // Store first meeting state
   socket.on("startMeeting", (meeeting) => {
     delete meeeting.icon;
+
+    ////// 👨‍👨‍👦‍👦 PARTICIPANTS LOGIC 👨‍👨‍👦‍👦
+    // Does the participants list exist for this meeting?
+    // No?
+    if (!(roomId in activeParticipants)) {
+      activeParticipants[roomId] = [];
+      const newParticipant = [socket.id, socket.name];
+      activeParticipants[roomId].push(newParticipant);
+    }
+    // Yes?
+    if (roomId in activeParticipants) {
+      const newParticipant = [socket.id, socket.name];
+      activeParticipants[roomId].push(newParticipant);
+    }
+
     activeMeetings[roomId] = { ...meeeting };
     console.log(`Initial state added - meeting id ${roomId}`);
     console.log(activeMeetings[roomId]);
   });
+  // FIXME: I never get to this part of the code???
   // Participant? Give them the meeting info
-  if (isFacilitator === false) {
-    console.log(`AAAAAAAAAAAAAAAAAAAAAAAAA INIT FOR ${name}`);
+  if (isFacilitator == false) {
+    console.log(`AAAAAAAAAAAAAAAAAAAAAAAAA ${name} gets a meeting!`);
     socket.emit("initialise_meeting", {
       meeting: { ...activeMeetings.roomId },
     });
@@ -155,19 +155,19 @@ io.on("connection", (socket) => {
   socket.on("addCard", (card) => {
     socket.broadcast.emit("addCard", card);
     // TODO: Store in object
-    console.log("Add card");
+    console.log(`${name} added a card`);
   });
 
   socket.on("deleteCard", (id) => {
     socket.broadcast.emit("deleteCard", id);
     // TODO: Store in object
-    console.log("Delete card");
+    console.log(`${name} deleted a card`);
   });
 
   socket.on("updateCardText", (card) => {
     socket.broadcast.emit("updateCardText", card);
     // TODO: Store in object
-    console.log("Update card");
+    console.log(`${name} updated acard`);
   });
 
   socket.on("updateCardVotes", (card) => {
@@ -175,15 +175,15 @@ io.on("connection", (socket) => {
     // TODO: Store in object
     console.log(
       card.thumb === "thumbsUp"
-        ? "Update card votes - thumbs up"
-        : "Update card votes - thumbs down"
+        ? `${name} voted a card up`
+        : `${name} voted a card down`
     );
   });
 
   socket.on("moveCard", (card) => {
     socket.broadcast.emit("moveCard", card);
     // TODO: Store in object
-    console.log("Move card");
+    console.log(`${name} moved a card`);
   });
 
   socket.on("endMeeting", (req) => {
