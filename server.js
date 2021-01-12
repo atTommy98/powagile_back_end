@@ -30,10 +30,10 @@ db.mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Connected to the database!");
+    console.log("\x1b[32m", "Mongo DB - Connection Successful!", "\x1b[0m");
   })
   .catch((err) => {
-    console.log("Cannot connect to the database!", err);
+    console.log("\x1b[31m", "Mongo DB - Error connecting:", err, "\x1b[0m");
     process.exit();
   });
 
@@ -48,7 +48,8 @@ require("./routes/users.routes")(app);
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+  console.log("---Starting up...---");
+  console.log("\x1b[32m", `Server is running on port ${PORT}`, "\x1b[0m");
 });
 
 // socket io
@@ -63,20 +64,9 @@ var io = require("socket.io")(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  socket.nickname = socket.handshake.query.username;
-  socket.join(socket.handshake.query.roomID);
-
-  console.log(`There is an active socket called ${socket.nickname}`);
-
-  socket.on("participants", (data) => {
-    socket.broadcast.emit(data);
-    console.log(`HIT - Participants`);
-    console.log(data.participants);
-  });
-});
-
-// FIXME: POST REQUEST
+// MongoDB shit goes here
+function checkMeeting() {}
+function updateMeeting() {}
 // app.post("/sockets", (req, res) => {
 //   // Update participants
 //   if (req.body.participants) {
@@ -94,3 +84,111 @@ io.on("connection", (socket) => {
 //     res.sendStatus(200);
 //   }
 // });
+
+// 💾 Store a list of the active meetings and participants
+var activeMeetings = {};
+var activeParticipants = {};
+//// This is hopefully where I'll put my replay feature:
+//// var activeMeetingStates = {};
+
+io.on("connection", (socket) => {
+  let { roomId, name, isFacilitator, avatar } = socket.handshake.query;
+  // Fix stupid string shit 🙃
+  if (isFacilitator == "false") {
+    isFacilitator = false;
+  }
+
+  // Give the the name of the user
+  socket.name = name;
+  // Join the relevant session
+  socket.join(roomId);
+
+  // Say they've connected
+  console.log(`${name} has connected! (${socket.id})`);
+  socket.broadcast.emit("notification", {
+    type: "user_connected",
+    content: `${name} has connected! (${socket.id})`,
+  });
+
+  // On startMeeting - store participant, store/emit meeting state
+  socket.on("startMeeting", (meeeting) => {
+    // Participant Logic:
+    // Create participant list (if it doesn't exist) and add participant
+    if (isFacilitator && !(roomId in activeParticipants)) {
+      activeParticipants[roomId] = [];
+      activeParticipants[roomId].push([socket.id, name]);
+    }
+    // Add to participant list
+    if (roomId in activeParticipants) {
+      activeParticipants[roomId].push([socket.id, name]);
+    }
+    // Give participant the meeting info
+    // console.log("I want false here, then true");
+    // console.log(typeof isFacilitator);
+    // console.log(!isFacilitator);
+    if (!isFacilitator) {
+      console.log(`${name} fetched meeting info`);
+      const meeting = activeMeetings[roomId];
+      socket.emit("initialise_meeting", meeting);
+    }
+
+    // Meeting Logic:
+    // Get rid of unused keys
+    delete meeeting.icon;
+    // Facilitator & new meeting? Take the meeting info and store it
+    if (isFacilitator && !(roomId in activeMeetings)) {
+      activeMeetings[roomId] = { ...meeeting };
+      console.log(activeMeetings);
+      console.log(activeMeetings[roomId]);
+    }
+  });
+
+  ////// 📒 NOTES LOGIC
+  socket.on("addCard", (card) => {
+    socket.broadcast.emit("addCard", card);
+    // TODO: Store in object
+    console.log(`${name} added a card`);
+  });
+
+  socket.on("deleteCard", (id) => {
+    socket.broadcast.emit("deleteCard", id);
+    // TODO: Store in object
+    console.log(`${name} deleted a card`);
+  });
+
+  socket.on("updateCardText", (card) => {
+    socket.broadcast.emit("updateCardText", card);
+    // TODO: Store in object
+    console.log(`${name} updated acard`);
+  });
+
+  socket.on("updateCardVotes", (card) => {
+    socket.broadcast.emit("updateCardVotes", card);
+    // TODO: Store in object
+    console.log(
+      card.thumb === "thumbsUp"
+        ? `${name} voted a card up`
+        : `${name} voted a card down`
+    );
+  });
+
+  socket.on("moveCard", (card) => {
+    socket.broadcast.emit("moveCard", card);
+    // TODO: Store in object
+    console.log(`${name} moved a card`);
+  });
+
+  socket.on("endMeeting", (req) => {
+    delete activeParticipants.roomId;
+    console.log(`Ending meeting ${roomId}...`);
+  });
+
+  socket.on("disconnect", (req) => {
+    console.log(`${name} has disconnected! (${socket.id})`);
+    socket.broadcast.emit("notification", {
+      type: "user_disconnected",
+      content: `${name} has disconnected!`,
+    });
+    // remove from list of active participants
+  });
+});
