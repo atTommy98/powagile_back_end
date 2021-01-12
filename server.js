@@ -10,6 +10,9 @@ const cors = require("cors");
 // initialise app
 const app = express();
 
+// nanoid
+// var { nanoid } = require("nanoid");
+
 // var corsOptions = {
 //   origin: [/(https?:\/\/localhost:\d+\/?)/g, "https://powagile.netlify.app/", "http://powagile.netlify.app/"],
 // };
@@ -122,14 +125,10 @@ io.on("connection", (socket) => {
     if (roomId in activeParticipants) {
       activeParticipants[roomId].push([socket.id, name]);
     }
-    // Give participant the meeting info
-    // console.log("I want false here, then true");
-    // console.log(typeof isFacilitator);
-    // console.log(!isFacilitator);
     if (!isFacilitator) {
       console.log(`${name} fetched meeting info`);
       const meeting = activeMeetings[roomId];
-      socket.emit("initialise_meeting", meeting);
+      socket.emit("updateMeeting", meeting);
     }
 
     // Meeting Logic:
@@ -138,47 +137,108 @@ io.on("connection", (socket) => {
     // Facilitator & new meeting? Take the meeting info and store it
     if (isFacilitator && !(roomId in activeMeetings)) {
       activeMeetings[roomId] = { ...meeeting };
-      console.log(activeMeetings);
+      // Show the state of the active meeting
       console.log(activeMeetings[roomId]);
     }
   });
 
   ////// 📒 NOTES LOGIC
-  socket.on("addCard", (card) => {
-    socket.broadcast.emit("addCard", card);
-    // TODO: Store in object
+  // ✅✅✅
+  socket.on("addCard", (newCard) => {
+    // Add the card
+    activeMeetings[roomId] = {
+      ...activeMeetings[roomId],
+      cards: [...activeMeetings[roomId].cards, newCard],
+    };
+
+    // Emit new meeting state
+    socket.emit("updateMeeting", activeMeetings[roomId]);
+    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
     console.log(`${name} added a card`);
+    console.log(activeMeetings[roomId]);
   });
 
+  // ✅✅✅❔❔❔
   socket.on("deleteCard", (id) => {
-    socket.broadcast.emit("deleteCard", id);
-    // TODO: Store in object
+    // "Delete" the card
+    const newCards = [...activeMeetings[roomId].cards];
+    const index = newCards.findIndex((card) => card.id === id);
+    newCards[index].isDeleted = true;
+
+    // Emit new meeting state
+    socket.emit("updateMeeting", activeMeetings[roomId]);
+    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
     console.log(`${name} deleted a card`);
   });
 
-  socket.on("updateCardText", (card) => {
-    socket.broadcast.emit("updateCardText", card);
-    // TODO: Store in object
+  // ✅✅✅❔❔❔
+  socket.on("updateCardText", ({ id, content }) => {
+    // Update the card
+    const newCards = [...activeMeetings[roomId].cards];
+    const index = newCards.findIndex((card) => card.id === id);
+    newCards[index].content = content;
+    activeMeetings[roomId] = {
+      ...activeMeetings[roomId],
+      cards: newCards,
+    };
+
+    // Emit new meeting state
+    socket.emit("updateMeeting", activeMeetings[roomId]);
+    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
     console.log(`${name} updated acard`);
   });
 
-  socket.on("updateCardVotes", (card) => {
-    socket.broadcast.emit("updateCardVotes", card);
-    // TODO: Store in object
+  // ✅✅✅❔❔❔
+  socket.on("updateCardVotes", ({ id, thumb }) => {
+    // Set the thumb
+    const newCards = [...activeMeetings[roomId].cards];
+    const index = newCards.findIndex((card) => card.id === id);
+    newCards[index][thumb] += 1;
+    activeMeetings[roomId] = {
+      ...activeMeetings[roomId],
+      cards: newCards,
+    };
+
+    // Emit new meeting state
+    socket.emit("updateMeeting", activeMeetings[roomId]);
+    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
     console.log(
-      card.thumb === "thumbsUp"
+      thumb === "thumbsUp"
         ? `${name} voted a card up`
         : `${name} voted a card down`
     );
   });
 
-  socket.on("moveCard", (card) => {
-    socket.broadcast.emit("moveCard", card);
-    // TODO: Store in object
+  // ✅✅✅❔❔❔
+  socket.on("moveCard", ({ id, direction }) => {
+    // Find the card
+    const newCards = [...activeMeetings[roomId].cards];
+    const index = newCards.findIndex((card) => card.id === id);
+    // Move the card
+    switch (direction) {
+      case "left":
+        newCards[index].columnIndex -= 1;
+        break;
+      case "right":
+        newCards[index].columnIndex += 1;
+        break;
+      default:
+        console.error(`Incorrect direction passed to "moveCard" function`);
+        break;
+    }
+    activeMeetings[roomId] = {
+      ...activeMeetings[roomId],
+      cards: newCards,
+    };
+
+    socket.emit("updateMeeting", activeMeetings[roomId]);
+    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
     console.log(`${name} moved a card`);
   });
 
-  socket.on("endMeeting", (req) => {
+  socket.on("endMeeting", () => {
+    socket.emit("endMeeting");
+    socket.broadcast.emit("endMeeting");
     delete activeParticipants.roomId;
     console.log(`Ending meeting ${roomId}...`);
   });
