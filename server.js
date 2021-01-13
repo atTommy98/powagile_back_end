@@ -1,29 +1,25 @@
-// //Express is for building the Rest apis
+// Express is for building the Rest apis
 const express = require("express");
 
-// //body-parser helps to parse the request and create the req.body object
+// body-parser (parse the request and create the req.body object)
 const bodyParser = require("body-parser");
 
-//cors provides Express middleware to enable CORS with various options
+// Express middleware to enable CORS with various options
 const cors = require("cors");
 
 // initialise app
 const app = express();
 
-// nanoid
-// var { nanoid } = require("nanoid");
+// environment variables
+require("dotenv").config();
 
-// var corsOptions = {
-//   origin: [/(https?:\/\/localhost:\d+\/?)/g, "https://powagile.netlify.app/", "http://powagile.netlify.app/"],
-// };
-// in case we need to change below app.use(cors(corsOptions));
-
+// CORS
 app.use(cors());
 
-// parse requests of content-type - application/json
+// Parse JSON
 app.use(bodyParser.json());
 
-// parse requests of content-type - application/x-www-form-urlencoded
+// Parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const db = require("./models");
@@ -58,45 +54,25 @@ const server = app.listen(PORT, () => {
 // socket io
 var io = require("socket.io")(server, {
   cors: {
-    origin: [
-      "http://127.0.0.1:5500",
-      "http://localhost:3000",
-      "https://powagile.netlify.app",
-    ],
+    origin: process.env.SOCKET_IO_CORS_URLs.split(" "),
     methods: ["GET", "POST"],
   },
 });
 
-// MongoDB shit goes here
+// TODO: MongoDB stuff will go
 function checkMeeting() {}
 function updateMeeting() {}
-// app.post("/sockets", (req, res) => {
-//   // Update participants
-//   if (req.body.participants) {
-//     io.emit("participants", req.body.participants);
-//     console.log(`HIT - Participants`);
-//     console.log(req.body.participants);
-//     res.sendStatus(200);
-//   }
-
-//   // Update meeting
-//   if (req.body.meeting) {
-//     io.emit("meeting", req.body.meeting);
-//     console.log(`HIT - Meeting`);
-//     console.log(req.body.meeting);
-//     res.sendStatus(200);
-//   }
-// });
 
 // 💾 Store a list of the active meetings and participants
 var activeMeetings = {};
 var activeParticipants = {};
-//// This is hopefully where I'll put my replay feature:
+
+//// This is (hopefully) where I'll put my replay feature:
 //// var activeMeetingStates = {};
 
 io.on("connection", (socket) => {
   let { roomId, name, isFacilitator, avatar } = socket.handshake.query;
-  // Fix stupid string shit 🙃
+  // Fix weird boolean/string bug
   if (isFacilitator == "false") {
     isFacilitator = false;
   }
@@ -155,7 +131,6 @@ io.on("connection", (socket) => {
     socket.emit("updateMeeting", activeMeetings[roomId]);
     socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
     console.log(`${name} added a card`);
-    console.log(activeMeetings[roomId]);
   });
 
   // ✅✅✅❔❔❔
