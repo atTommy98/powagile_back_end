@@ -119,7 +119,6 @@ io.on("connection", (socket) => {
   });
 
   ////// 📒 NOTES LOGIC
-  // ✅✅✅
   socket.on("addCard", (newCard) => {
     // Add the card
     activeMeetings[roomId] = {
@@ -133,7 +132,6 @@ io.on("connection", (socket) => {
     console.log(`${name} added a card`);
   });
 
-  // ✅✅✅❔❔❔
   socket.on("deleteCard", (id) => {
     // "Delete" the card
     const newCards = [...activeMeetings[roomId].cards];
@@ -146,7 +144,6 @@ io.on("connection", (socket) => {
     console.log(`${name} deleted a card`);
   });
 
-  // ✅✅✅❔❔❔
   socket.on("updateCardText", ({ id, content }) => {
     // Update the card
     const newCards = [...activeMeetings[roomId].cards];
@@ -163,7 +160,6 @@ io.on("connection", (socket) => {
     console.log(`${name} updated acard`);
   });
 
-  // ✅✅✅❔❔❔
   socket.on("updateCardVotes", ({ id, thumb }) => {
     // Set the thumb
     const newCards = [...activeMeetings[roomId].cards];
@@ -184,7 +180,6 @@ io.on("connection", (socket) => {
     );
   });
 
-  // ✅✅✅❔❔❔
   socket.on("moveCard", ({ id, direction }) => {
     // Find the card
     const newCards = [...activeMeetings[roomId].cards];
