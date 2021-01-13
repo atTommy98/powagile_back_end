@@ -1,41 +1,58 @@
-const sampleMeeting =
+////////// SAMPLE MEETING
 {
-\_id:5fec54666b9c0d07aca67c48
-type: "StandUp",
+"meetingParticipants": [{
+"name": "Daniela",
+"hasHadTurn": true,
+"timeLeft": 56,
+"pauses": [1610198477895, 1610198481231]
+}, {
+"name": "Stefan",
+"hasHadTurn": true,
+"timeLeft": 59,
+"pauses": []
+}, {
+"name": "Tommy",
+"hasHadTurn": true,
+"timeLeft": 58,
+"pauses": []
+}, {
+"name": "Kawalpreet",
+"hasHadTurn": true,
+"timeLeft": 58,
+"pauses": []
+}, {
+"name": "Jon",
+"hasHadTurn": true,
+"timeLeft": 58,
+"pauses": []
+}],
+"userId": "google-oauth2|112786140174644839336",
+"type": "standup",
+"meetingStartTime": {
+"$date": "2021-01-09T13:21:15.222Z"
+    },
+    "meetingEndTime": {
+        "$date": "2021-01-09T13:21:37.857Z"
+},
+"createdAt": {
+"$date": "2021-01-09T13:21:38.050Z"
+    },
+    "updatedAt": {
+        "$date": "2021-01-09T13:21:38.050Z"
+},
+}
+
+////////// SAMPLE USER (TODO:)
+{
 userName: String,
-hasHadTurn: true,
-timeLeft: number
-pauses: [number]
-totalSpeekingTime:number
-cards: {
-yesterday:"String",
-today:"String",
-blockers:"String"
-\_v:0
+AuthId: String,
+email: String,
+user_metadata: {},
+app_metadata: {},
 }
 
-users:
+////////// SAMPLE TEAM
 {
-userName: String,
-signUp: Boolean,
-hasHadTurn: Boolean,
-timeLeft: Number,
-pauses: Boolean
-totalSpeekingTime: Number
-}
-
-meeting:
-{
-type: String (StandUp/Retro),
-cards: Array of Objects
-[{yesterday:String}, {today: String}, {blockers: String}, {Millestones: String}, {WentWell:String}, {toImprove: String}, {Actions: String}],
-totalMeetingTime: Number,
-userName:String,
-hasHadTurn: Boolean
-}
-
-teams:
-{
-users: Array
-
+teamId: String,
+teamMembers: Array, // Array contains the AuthIds of the users
 }

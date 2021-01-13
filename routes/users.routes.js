@@ -13,13 +13,13 @@ module.exports = (app) => {
   // router.get("/hasHadTurn", users.findAllHASHadTurn);
 
   // Retrieve a single Entry with id
-  router.get("/:id", users.findOne);
+  router.get("/id", users.findOne);
 
   // Update a Entry with id
-  router.put("/:id", users.update);
+  router.put("/id", users.update);
 
   // Delete a Entry with id
-  router.delete("/:id", users.delete);
+  router.delete("/id", users.delete);
 
   // Delete all Entries
   router.delete("/", users.deleteAll);

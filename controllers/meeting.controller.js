@@ -30,6 +30,7 @@ exports.create = (req, res) => {
 
 exports.findAll = (req, res) => {
   const type = req.query.type;
+
   var condition = type
     ? { type: { $regex: new RegExp(type), $options: "i" } }
     : {};
@@ -47,7 +48,7 @@ exports.findAll = (req, res) => {
 
 // Find a single entry with an id
 exports.findOne = (req, res) => {
-  const id = req.params.id;
+  const id = req.query.id;
 
   Meeting.findById(id)
     .then((data) => {
@@ -87,7 +88,7 @@ exports.update = (req, res) => {
 
 // Delete an entry with the specified id in the request
 exports.delete = (req, res) => {
-  const id = req.params.id;
+  const id = req.query.id;
 
   Meeting.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
@@ -124,16 +125,60 @@ exports.deleteAll = (req, res) => {
     });
 };
 
-// Find all published Tutorials with published = true:
+// GET Meeting with specific date
+exports.getMeetingByDate = async (req, res) => {
+  try {
+    // Get date
+    let startTimeTimestamp = req.query.meetingStartTime;
+    startTimeTimestamp = Number(startTimeTimestamp);
 
-exports.findAllHASHadTurn = (req, res) => {
-  Meeting.find({ hasHadTurn: true })
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving entries.",
+    console.log({ startTimeTimestamp });
+
+    //1. check that date is not empty
+    if (startTimeTimestamp === "") {
+      return res.status(400).json({
+        status: "Failure",
+        message: "Please ensure you pick a valid date",
       });
+    }
+
+    // Define "from" and "to" time
+    const from = new Date(
+      new Date(startTimeTimestamp).setHours(00, 00, 00)
+    ).toString();
+    const to = new Date(
+      new Date(startTimeTimestamp).setHours(23, 59, 59)
+    ).toString();
+    console.log({ from, to });
+
+    // Meeting.find({ $where: 'meetingStartTime == "2020"' });
+
+    //3. Query database using Mongoose
+    //Mind the curly braces
+    const meetings = await Meeting.find({
+      meetingStartTime: {
+        $gte: from,
+        $lt: to,
+      },
     });
+
+    //4. Handle responses
+    if (!meetings) {
+      return res.status(404).json({
+        status: "failure",
+        message: "Could not retrieve meetings",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: meetings,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: "failure",
+      error: error.message,
+    });
+  }
 };
