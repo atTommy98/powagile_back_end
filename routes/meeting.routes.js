@@ -12,6 +12,9 @@ module.exports = (app) => {
   // Retreive meetings by date
   router.get("/getByDate", meeting.getMeetingByDate);
 
+  // Retreive all entries by user id
+  router.get("/userId", meeting.findOne);
+
   // Retrieve a single Entry with id
   router.get("/id", meeting.findOne);
 
