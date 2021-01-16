@@ -1,5 +1,5 @@
 const db = require("../models");
-const Meeting = db.meeting;
+const MeetingRetro = db.meetingRetro;
 
 // CRUD _ Create and Save a new entry
 exports.create = (req, res) => {
@@ -10,11 +10,11 @@ exports.create = (req, res) => {
   }
 
   // Create a new entry
-  const meeting = new Meeting(req.body);
+  const meetingRetro = new MeetingRetro(req.body);
 
   // Save newEntry in the database
-  meeting
-    .save(meeting)
+  meetingRetro
+    .save(meetingRetro)
     .then((data) => {
       res.status(200).send({ data });
     })
@@ -26,7 +26,7 @@ exports.create = (req, res) => {
     });
 };
 // READ - Retrieve all entries from the database.
-// Retrieve all entries/ find by userName from the database:
+// Retrieve all entries/ find by type from the database:
 
 exports.findAll = (req, res) => {
   const type = req.query.type;
@@ -35,7 +35,7 @@ exports.findAll = (req, res) => {
     ? { type: { $regex: new RegExp(type), $options: "i" } }
     : {};
 
-  Meeting.find(condition)
+  MeetingRetro.find(condition)
     .then((data) => {
       res.send(data);
     })
@@ -50,7 +50,7 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
   const id = req.query.id;
 
-  Meeting.findById(id)
+  MeetingRetro.findById(id)
     .then((data) => {
       if (!data)
         res.status(404).send({ message: "Not found entry with id " + id });
@@ -71,7 +71,7 @@ exports.update = (req, res) => {
 
   const id = req.params.id;
 
-  Meeting.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+  MeetingRetro.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
     .then((data) => {
       if (!data) {
         res.status(404).send({
@@ -90,7 +90,7 @@ exports.update = (req, res) => {
 exports.delete = (req, res) => {
   const id = req.query.id;
 
-  Meeting.findByIdAndRemove(id, { useFindAndModify: false })
+  MeetingRetro.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
       if (!data) {
         res.status(404).send({
@@ -111,7 +111,7 @@ exports.delete = (req, res) => {
 
 // Delete all entries from the database.
 exports.deleteAll = (req, res) => {
-  Meeting.deleteMany({})
+  MeetingRetro.deleteMany({})
     .then((data) => {
       res.send({
         message: `${data.deletedCount} Entries were deleted successfully!`,
@@ -155,7 +155,7 @@ exports.getMeetingByDate = async (req, res) => {
 
     //3. Query database using Mongoose
     //Mind the curly braces
-    const meetings = await Meeting.find({
+    const meetings = await MeetingRetro.find({
       meetingStartTime: {
         $gte: from,
         $lt: to,
