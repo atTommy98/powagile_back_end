@@ -7,7 +7,8 @@ const db = {};
 db.mongoose = mongoose;
 db.url = dbConfig.url;
 db.users = require("./users.model")(mongoose);
-db.meeting = require("./meeting.model")(mongoose);
+db.meetingStandUp = require("./meetingStandUp.model")(mongoose);
+db.meetingRetro = require("./meetingRetro.model")(mongoose);
 // db.sockets = require("./sockets.model")(mongoose);
 
 module.exports = db;

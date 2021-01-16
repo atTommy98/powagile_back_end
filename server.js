@@ -41,7 +41,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Your POW! application." });
 });
 
-require("./routes/meeting.routes")(app);
+require("./routes/meetingStandUp.routes")(app);
+require("./routes/meetingRetro.routes")(app);
 require("./routes/users.routes")(app);
 
 // set port, listen for requests
