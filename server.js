@@ -92,134 +92,192 @@ io.on("connection", (socket) => {
 
   // On startMeeting - store participant, store/emit meeting state
   socket.on("startMeeting", (meeeting) => {
-    // Participant Logic:
-    // Create participant list (if it doesn't exist) and add participant
-    if (isFacilitator && !(roomId in activeParticipants)) {
-      activeParticipants[roomId] = [];
-      activeParticipants[roomId].push([socket.id, name]);
-    }
-    // Add to participant list
-    if (roomId in activeParticipants) {
-      activeParticipants[roomId].push([socket.id, name]);
-    }
-    if (!isFacilitator) {
-      console.log(`${name} fetched meeting info`);
-      const meeting = activeMeetings[roomId];
-      socket.emit("updateMeeting", meeting);
-    }
+    try {
+      // Participant Logic:
+      // Add to participant list (if it exists)
+      if (roomId in activeParticipants && !isFacilitator) {
+        const participantList = activeParticipants[roomId];
+        participantList.push({ name: name, id: socket.id, avatar });
+        socket.emit("updateParticipants", participantList);
+        socket.broadcast.emit("updateParticipants", participantList);
+        console.log(`${name} fetched participant info`);
+      }
+      if (!isFacilitator) {
+        console.log(`${name} fetched meeting info`);
+        const meeting = activeMeetings[roomId];
+        socket.emit("updateMeeting", meeting);
+      }
+      // Create participant list (if it doesn't exist) and add participant
+      if (!(roomId in activeParticipants) && isFacilitator) {
+        activeParticipants[roomId] = [];
+        const participantList = activeParticipants[roomId];
+        participantList.push({ name: name, id: socket.id, avatar });
+        socket.emit("updateParticipants", participantList);
+      }
 
-    // Meeting Logic:
-    // Get rid of unused keys
-    delete meeeting.icon;
-    // Facilitator & new meeting? Take the meeting info and store it
-    if (isFacilitator && !(roomId in activeMeetings)) {
-      activeMeetings[roomId] = { ...meeeting };
-      // Show the state of the active meeting
-      console.log(activeMeetings[roomId]);
+      // Meeting Logic:
+      // Get rid of unused keys
+      delete meeeting.icon;
+      // Facilitator & new meeting? Take the meeting info and store it
+      if (isFacilitator && !(roomId in activeMeetings)) {
+        activeMeetings[roomId] = { ...meeeting };
+        // Show the state of the active meeting
+        console.log(activeMeetings[roomId]);
+      }
+    } catch (err) {
+      console.error(err);
     }
   });
 
   ////// 📒 NOTES LOGIC
   socket.on("addCard", (newCard) => {
-    // Add the card
-    activeMeetings[roomId] = {
-      ...activeMeetings[roomId],
-      cards: [...activeMeetings[roomId].cards, newCard],
-    };
+    try {
+      // Add the card
+      activeMeetings[roomId] = {
+        ...activeMeetings[roomId],
+        cards: [...activeMeetings[roomId].cards, newCard],
+      };
 
-    // Emit new meeting state
-    socket.emit("updateMeeting", activeMeetings[roomId]);
-    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
-    console.log(`${name} added a card`);
+      // Emit new meeting state
+      socket.emit("updateMeeting", activeMeetings[roomId]);
+      socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
+      console.log(`${name} added a card`);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on("deleteCard", (id) => {
-    // "Delete" the card
-    const newCards = [...activeMeetings[roomId].cards];
-    const index = newCards.findIndex((card) => card.id === id);
-    newCards[index].isDeleted = true;
+    try {
+      // "Delete" the card
+      const newCards = [...activeMeetings[roomId].cards];
+      const index = newCards.findIndex((card) => card.id === id);
+      newCards[index].isDeleted = true;
 
-    // Emit new meeting state
-    socket.emit("updateMeeting", activeMeetings[roomId]);
-    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
-    console.log(`${name} deleted a card`);
+      // Emit new meeting state
+      socket.emit("updateMeeting", activeMeetings[roomId]);
+      socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
+      console.log(`${name} deleted a card`);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on("updateCardText", ({ id, content }) => {
-    // Update the card
-    const newCards = [...activeMeetings[roomId].cards];
-    const index = newCards.findIndex((card) => card.id === id);
-    newCards[index].content = content;
-    activeMeetings[roomId] = {
-      ...activeMeetings[roomId],
-      cards: newCards,
-    };
+    try {
+      // Update the card
+      const newCards = [...activeMeetings[roomId].cards];
+      const index = newCards.findIndex((card) => card.id === id);
+      newCards[index].content = content;
+      activeMeetings[roomId] = {
+        ...activeMeetings[roomId],
+        cards: newCards,
+      };
 
-    // Emit new meeting state
-    // socket.emit("updateMeeting", activeMeetings[roomId]);
-    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
-    console.log(`${name} updated a card`);
+      // Emit new meeting state
+      socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
+      console.log(`${name} updated a card`);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on("updateCardVotes", ({ id, thumb }) => {
-    // Set the thumb
-    const newCards = [...activeMeetings[roomId].cards];
-    const index = newCards.findIndex((card) => card.id === id);
-    newCards[index][thumb] += 1;
-    activeMeetings[roomId] = {
-      ...activeMeetings[roomId],
-      cards: newCards,
-    };
+    try {
+      // Set the thumb
+      const newCards = [...activeMeetings[roomId].cards];
+      const index = newCards.findIndex((card) => card.id === id);
+      newCards[index][thumb] += 1;
+      activeMeetings[roomId] = {
+        ...activeMeetings[roomId],
+        cards: newCards,
+      };
 
-    // Emit new meeting state
-    socket.emit("updateMeeting", activeMeetings[roomId]);
-    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
-    console.log(
-      thumb === "thumbsUp"
-        ? `${name} voted a card up`
-        : `${name} voted a card down`
-    );
+      // Emit new meeting state
+      socket.emit("updateMeeting", activeMeetings[roomId]);
+      socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
+      console.log(
+        thumb === "thumbsUp"
+          ? `${name} voted a card up`
+          : `${name} voted a card down`
+      );
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on("moveCard", ({ id, direction }) => {
-    // Find the card
-    const newCards = [...activeMeetings[roomId].cards];
-    const index = newCards.findIndex((card) => card.id === id);
-    // Move the card
-    switch (direction) {
-      case "left":
-        newCards[index].columnIndex -= 1;
-        break;
-      case "right":
-        newCards[index].columnIndex += 1;
-        break;
-      default:
-        console.error(`Incorrect direction passed to "moveCard" function`);
-        break;
-    }
-    activeMeetings[roomId] = {
-      ...activeMeetings[roomId],
-      cards: newCards,
-    };
+    try {
+      // Find the card
+      const newCards = [...activeMeetings[roomId].cards];
+      const index = newCards.findIndex((card) => card.id === id);
+      // Move the card
+      switch (direction) {
+        case "left":
+          newCards[index].columnIndex -= 1;
+          break;
+        case "right":
+          newCards[index].columnIndex += 1;
+          break;
+        default:
+          console.error(`Incorrect direction passed to "moveCard" function`);
+          break;
+      }
+      activeMeetings[roomId] = {
+        ...activeMeetings[roomId],
+        cards: newCards,
+      };
 
-    socket.emit("updateMeeting", activeMeetings[roomId]);
-    socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
-    console.log(`${name} moved a card`);
+      socket.emit("updateMeeting", activeMeetings[roomId]);
+      socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
+      console.log(`${name} moved a card`);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on("endMeeting", () => {
-    socket.emit("endMeeting");
-    socket.broadcast.emit("endMeeting");
-    delete activeParticipants.roomId;
-    console.log(`Ending meeting ${roomId}...`);
+    try {
+      socket.emit("endMeeting");
+      socket.broadcast.emit("endMeeting");
+      delete activeParticipants.roomId;
+      console.log(`Ending meeting ${roomId}...`);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
-  socket.on("disconnect", (req) => {
-    console.log(`${name} has disconnected! (${socket.id})`);
-    socket.broadcast.emit("notification", {
-      type: "user_disconnected",
-      content: `${name} has left the retro!`,
-    });
-    // remove from list of active participants
+  socket.on("disconnect", () => {
+    try {
+      console.log(`${name} has disconnected! (${socket.id})`);
+      const newParticipantList = activeParticipants[roomId].filter(
+        (el) => el.id !== socket.id
+      );
+      socket.broadcast.emit("updateParticipants", newParticipantList);
+      socket.broadcast.emit("notification", {
+        type: "user_disconnected",
+        content: `${name} has left the retro!`,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  socket.on("kick", ({ id }) => {
+    try {
+      if (id === socket.id) {
+        console.log(`${name} has been kicked! (${socket.id})`);
+        const newParticipantList = activeParticipants[roomId].filter(
+          (el) => el.id !== socket.id
+        );
+        socket.broadcast.emit("updateParticipants", newParticipantList);
+        socket.broadcast.emit("notification", {
+          type: "user_kicked",
+          content: `${name} has been kicked by the host!`,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   });
 });
