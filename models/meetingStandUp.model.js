@@ -10,6 +10,7 @@ module.exports = (mongoose) => {
         meetingParticipants: Array,
         meetingStartTime: Date,
         meetingEndTime: Date,
+        meetingEndedOnTime: Boolean,
       },
       { timestamps: true }
     )
