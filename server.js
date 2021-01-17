@@ -41,7 +41,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Your POW! application." });
 });
 
-require("./routes/meeting.routes")(app);
+require("./routes/meetingStandUp.routes")(app);
+require("./routes/meetingRetro.routes")(app);
 require("./routes/users.routes")(app);
 
 // set port, listen for requests
@@ -86,7 +87,7 @@ io.on("connection", (socket) => {
   console.log(`${name} has connected! (${socket.id})`);
   socket.broadcast.emit("notification", {
     type: "user_connected",
-    content: `${name} has connected! (${socket.id})`,
+    content: `${name} has joined the retro!`,
   });
 
   // On startMeeting - store participant, store/emit meeting state
@@ -155,9 +156,9 @@ io.on("connection", (socket) => {
     };
 
     // Emit new meeting state
-    socket.emit("updateMeeting", activeMeetings[roomId]);
+    // socket.emit("updateMeeting", activeMeetings[roomId]);
     socket.broadcast.emit("updateMeeting", activeMeetings[roomId]);
-    console.log(`${name} updated acard`);
+    console.log(`${name} updated a card`);
   });
 
   socket.on("updateCardVotes", ({ id, thumb }) => {
@@ -217,7 +218,7 @@ io.on("connection", (socket) => {
     console.log(`${name} has disconnected! (${socket.id})`);
     socket.broadcast.emit("notification", {
       type: "user_disconnected",
-      content: `${name} has disconnected!`,
+      content: `${name} has left the retro!`,
     });
     // remove from list of active participants
   });
