@@ -262,7 +262,7 @@ io.on("connection", (socket) => {
     }
     try {
       console.log(`${name} has disconnected! (${socket.id})`);
-      const newParticipantList = activeParticipants.roomId.filter(
+      const newParticipantList = activeParticipants[roomId].filter(
         (el) => el.id !== socket.id
       );
       socket.broadcast.emit("updateParticipants", newParticipantList);
