@@ -38,7 +38,7 @@ db.mongoose
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to Your POW! application." });
+  res.json({ message: "Welcome to POW!Agile." });
 });
 
 require("./routes/meetingStandUp.routes")(app);
@@ -120,7 +120,7 @@ io.on("connection", (socket) => {
       delete meeeting.icon;
       // Facilitator & new meeting? Take the meeting info and store it
       if (isFacilitator && !(roomId in activeMeetings)) {
-        activeMeetings[roomId] = { ...meeeting };
+        activeMeetings[roomId] = { ...meeeting, meetingStartTime: Date.now() };
         // Show the state of the active meeting
         console.log(activeMeetings[roomId]);
       }
@@ -237,20 +237,32 @@ io.on("connection", (socket) => {
   });
 
   socket.on("endMeeting", () => {
+    if (!isFacilitator) {
+      return;
+    }
     try {
+      const finalMeetingState = {
+        ...activeMeetings[roomId],
+        meetingFinished: true,
+        meetingEndTime: Date.now(),
+      };
+      // TODO: Store in DB
+      delete activeParticipants[roomId];
+      console.log(`Ending meeting ${roomId}...`);
       socket.emit("endMeeting");
       socket.broadcast.emit("endMeeting");
-      delete activeParticipants.roomId;
-      console.log(`Ending meeting ${roomId}...`);
     } catch (err) {
       console.error(err);
     }
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", ({ type }) => {
+    if (type === "endMeeting") {
+      retrurn;
+    }
     try {
       console.log(`${name} has disconnected! (${socket.id})`);
-      const newParticipantList = activeParticipants[roomId].filter(
+      const newParticipantList = activeParticipants.roomId.filter(
         (el) => el.id !== socket.id
       );
       socket.broadcast.emit("updateParticipants", newParticipantList);
@@ -263,7 +275,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("kick", ({ id }) => {
+  socket.on("kick", (id) => {
     try {
       if (id === socket.id) {
         console.log(`${name} has been kicked! (${socket.id})`);
@@ -275,6 +287,7 @@ io.on("connection", (socket) => {
           type: "user_kicked",
           content: `${name} has been kicked by the host!`,
         });
+        socket.disconnect();
       }
     } catch (err) {
       console.error(err);
