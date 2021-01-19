@@ -13,6 +13,7 @@ module.exports = (mongoose) => {
         cards: Array,
         meetingParticipants: {},
         meetingStarted: Boolean,
+        meetingDuration: Number,
         meetingFinished: Boolean,
         meetingStartTime: Date,
         meetingEndTime: Date,

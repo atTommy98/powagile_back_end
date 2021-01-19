@@ -3,12 +3,6 @@ const MeetingRetro = db.meetingRetro;
 
 // CRUD _ Create and Save a new entry
 exports.create = (req, res) => {
-  // Validate request
-  if (!req.body.type) {
-    res.status(400).send({ message: "Content can not be empty!" });
-    return;
-  }
-
   // Create a new entry
   const meetingRetro = new MeetingRetro(req.body);
 
