@@ -246,7 +246,22 @@ io.on("connection", (socket) => {
         meetingFinished: true,
         meetingEndTime: Date.now(),
       };
-      // TODO: Store in DB
+      // Store in DB
+      db.meetingRetro.create(
+        { body: { ...finalMeetingState } },
+        (err, success) => {
+          if (err) {
+            console.error(
+              `Error POSTing meeting ${finalMeetingState.id} - ${err}`
+            );
+          } else {
+            console.log(
+              `Meeting ${finalMeetingState.id} successfully posted to database!`
+            );
+          }
+        }
+      );
+
       delete activeParticipants[roomId];
       console.log(`Ending meeting ${roomId}...`);
       socket.emit("endMeeting");
@@ -256,9 +271,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", ({ type }) => {
-    if (type === "endMeeting") {
-      retrurn;
+  socket.on("disconnect", () => {
+    if (isFacilitator) {
+      return;
     }
     try {
       console.log(`${name} has disconnected! (${socket.id})`);
@@ -275,22 +290,27 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("kick", (id) => {
-    try {
-      if (id === socket.id) {
-        console.log(`${name} has been kicked! (${socket.id})`);
-        const newParticipantList = activeParticipants[roomId].filter(
-          (el) => el.id !== socket.id
-        );
-        socket.broadcast.emit("updateParticipants", newParticipantList);
-        socket.broadcast.emit("notification", {
-          type: "user_kicked",
-          content: `${name} has been kicked by the host!`,
-        });
-        socket.disconnect();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  });
+  // FIXME: Not working
+  // socket.on("kick", (id) => {
+  //   if (isFacilitator) {
+  //     io.to(id).emit("kick", id);
+  //     return;
+  //   }
+  //   try {
+  //     if (id == socket.id) {
+  //       console.log(`${name} has been kicked! (${socket.id})`);
+  //       const newParticipantList = activeParticipants[roomId].filter(
+  //         (el) => el.id !== socket.id
+  //       );
+  //       socket.broadcast.emit("updateParticipants", newParticipantList);
+  //       socket.broadcast.emit("notification", {
+  //         type: "user_kicked",
+  //         content: `${name} has been kicked by the host!`,
+  //       });
+  //       socket.disconnect();
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // });
 });
